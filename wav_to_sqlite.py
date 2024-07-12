@@ -1,11 +1,13 @@
 import sqlite3
-import re
 import argparse
 import logging
 import sys
 import time
 from batdetect2 import api
+from db.utils import create_schema, table_exists, record_exists
 from typing import Optional, Tuple
+from guano import GuanoFile
+from pathlib import Path
 
 """
 Process wav directory using BatDetect2
@@ -103,33 +105,6 @@ def execute_query(
         cur.close()
 
 
-def create_timestamp(filename: str) -> str:
-    """
-    Converts a wildlife acoustic WAV filename to a timestamp format.
-
-    Parameters:
-    - filename (str): The filename containing the timestamp.
-
-    Returns:
-    - str: The formatted timestamp in the format "YYYY-MM-DD HH:MM:SS", or None if no timestamp is found.
-
-    Example:
-    ```
-    filename = "SMU01770_20220514_123456.wav"
-    timestamp = create_timestamp(filename)
-    print(timestamp)  # Output: "2022-05-14 12:34:56"
-    ```
-    """
-    pattern = r"\d{8}_\d{6}"
-    match = re.search(pattern, filename)
-    if match:
-        timestamp = match.group(0)
-        formatted_timestamp = f"{timestamp[0:4]}-{timestamp[4:6]}-{timestamp[6:8]} {timestamp[9:11]}:{timestamp[11:13]}:{timestamp[13:15]}"
-        return formatted_timestamp
-    else:
-        return None
-
-
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
@@ -147,7 +122,7 @@ def parse_arguments() -> argparse.Namespace:
         "-d",
         "--db_path",
         help="Path to output sqlite3 database, defaults to sqlite3.db",
-        default="sqlite3.db",
+        default="./sqlite3.db",
         type=str,
     )
 
@@ -184,46 +159,25 @@ def main():
         logging.error("WAV directory is empty, exiting script")
         sys.exit()
 
+    if not table_exists(db_path):
+        logging.info("No database schema identified, creating new schema")
+        create_schema()
+    else:
+        logging.info("Database schema exists")
+
     with sqlite3.connect(db_path) as conn:
-        cur = conn.cursor()
-
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS records (
-            id INTEGER PRIMARY KEY,
-            file_name TEXT UNIQUE,
-            location_id TEXT,
-            serial TEXT,
-            record_time TIMESTAMP,
-            duration FLOAT,
-            class_name TEXT
-            )"""
-        )
-
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS annotations (
-            id INTEGER PRIMARY KEY,
-            record_id INTEGER,
-            start_time FLOAT,
-            end_time FLOAT,
-            low_freq INTEGER,
-            high_freq INTEGER,
-            spp_class TEXT,
-            class_prob FLOAT,
-            det_prob FLOAT,
-            individual INTEGER,
-            event TEXT,
-            FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
-            )"""
-        )
-
         conn.commit()
 
         for count, f in enumerate(audio_files, start=1):
             logging.info(f"Processing file {count} of {audio_array_length}")
 
-            # process files using custom config
+            file_path = Path(f)
+
+            if record_exists(conn, file_path.name):
+                logging.info("Record already exists in database, moving to next record")
+                continue
+
+            guano_file = GuanoFile(f)
             processed = api.process_file(f, config=conf)
 
             record = processed["pred_dict"]
@@ -231,8 +185,8 @@ def main():
             record_values = (
                 record["id"],
                 location_id,
-                record["id"][:8],
-                create_timestamp(record["id"]),
+                guano_file["Serial"],
+                guano_file["Timestamp"],
                 record["duration"],
                 record["class_name"],
             )

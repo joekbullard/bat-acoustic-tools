@@ -1,2 +1,2 @@
 # AWT Bat Data Processing
-TBC
+Tools to import, analyse and manage the outputs of bat acoustic data. Uses batdetect2 to process WAV files.
