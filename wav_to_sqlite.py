@@ -2,10 +2,14 @@ import sqlite3
 import argparse
 import logging
 import sys
-import time
 from batdetect2 import api
-from db.utils import create_schema, table_exists, record_exists
-from typing import Optional, Tuple
+from db.utils import (
+    create_schema,
+    table_exists,
+    record_exists,
+    execute_query,
+    executemany_query,
+)
 from guano import GuanoFile
 from pathlib import Path
 
@@ -27,82 +31,6 @@ def setup_logging():
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
-
-
-def executemany_query(
-    connection: sqlite3.Connection, query: str, params: Optional[Tuple] = None
-) -> None:
-    """
-    This is a recursive function that works around issues with SQLite locking of database.
-    """
-    cur = connection.cursor()
-    try:
-        cur.executemany(query, params)
-        connection.commit()
-    except sqlite3.OperationalError as e:
-        # Handle potential lock issues
-        connection.rollback()
-        logging.error(f"SQLite Operational Error: {e}. Retrying in 100ms...")
-        time.sleep(0.1)
-        executemany_query(connection, query, params)
-    finally:
-        cur.close()
-
-
-def execute_query(
-    connection: sqlite3.Connection, query: str, params: Optional[Tuple] = None
-) -> Optional[int]:
-    """
-    Execute a SQL query on the provided SQLite database connection.
-
-    Parameters:
-    - connection (sqlite3.Connection): A SQLite database connection obtained using sqlite3.connect().
-    - query (str): The SQL query to execute.
-    - params (tuple, optional): Parameters to substitute into the query if it is a parameterized query.
-                                 Default is None.
-
-    Returns:
-    - None
-
-    Notes:
-    - This function executes the provided SQL query on the given SQLite database connection.
-    - If the query is a parameterized query, the params argument should be provided as a tuple
-      containing the parameter values.
-    - The function retries the query execution in case of an sqlite3.OperationalError, which may
-      indicate a locking issue. It waits for a short duration (0.1 seconds by default) before
-      retrying the operation.
-    - The function may raise exceptions other than sqlite3.OperationalError if there are other issues
-      with the query execution, such as syntax errors or integrity constraints violations.
-    - It is the caller's responsibility to handle any exceptions raised by this function.
-
-    Example:
-    ```
-    connection = sqlite3.connect("example.db")
-    query = "INSERT INTO my_table (column1, column2) VALUES (?, ?)"
-    params = ("value1", "value2")
-    execute_query(connection, query, params)
-    ```
-    """
-    cur = connection.cursor()
-    try:
-        if params:
-            cur.execute(query, params)
-        else:
-            cur.execute(query)
-        connection.commit()
-
-        if query.strip().lower().startswith("insert"):
-            return cur.lastrowid
-        else:
-            return None
-    except sqlite3.OperationalError as e:
-        # Handle potential lock issues
-        connection.rollback()
-        logging.error(f"SQLite Operational Error: {e}. Retrying in 100ms...")
-        time.sleep(0.1)
-        execute_query(connection, query, params)
-    finally:
-        cur.close()
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -166,8 +94,6 @@ def main():
         logging.info("Database schema exists")
 
     with sqlite3.connect(db_path) as conn:
-        conn.commit()
-
         for count, f in enumerate(audio_files, start=1):
             logging.info(f"Processing file {count} of {audio_array_length}")
 
