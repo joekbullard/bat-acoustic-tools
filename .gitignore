@@ -1,8 +1,5 @@
 .env/
-env/
 test_data/
 *.db
 sqlite3.*
-deprecated/
 __pycache__/
-.venv/
