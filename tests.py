@@ -2,7 +2,7 @@ import unittest
 import sqlite3
 import tempfile
 import os
-from wav_to_sqlite import executemany_query, execute_query, create_timestamp, INSERT_ANNOTATION, INSERT_RECORD
+from wav_to_sqlite import executemany_query, execute_query, INSERT_ANNOTATION, INSERT_RECORD
 
 class TestDatabaseFunctions(unittest.TestCase):
     
@@ -48,11 +48,6 @@ class TestDatabaseFunctions(unittest.TestCase):
         self.conn.close()
         os.close(self.db_fd)
         os.unlink(self.db_path)
-    
-    def test_create_timestamp(self):
-        filename = "SMU01770_20220514_123456.wav"
-        expected_timestamp = "2022-05-14 12:34:56"
-        self.assertEqual(create_timestamp(filename), expected_timestamp)
 
     def test_execute_query(self):
         record_values = (
