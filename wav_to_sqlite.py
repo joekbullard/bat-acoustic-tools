@@ -41,12 +41,6 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "location_id",
-        help="Alphanumeric detector code, e.g GC01, refer to AGOL featurelayer",
-        type=str,
-    )
-
-    parser.add_argument(
         "-d",
         "--db_path",
         help="Path to output sqlite3 database, defaults to sqlite3.db",
@@ -67,9 +61,8 @@ def parse_arguments() -> argparse.Namespace:
 def main():
     setup_logging()
     args = parse_arguments()
-    wav_directory = args.directory
-    location_id = args.location_id
-    db_path = args.db_path
+    wav_directory = Path(args.directory)
+    db_path = Path(args.db_path)
     threshold = args.threshold
 
     conf = api.get_config(
@@ -78,6 +71,8 @@ def main():
         target_samp_rate=384000,
         min_freq_hz=16000,
     )
+
+    location_id = wav_directory.parent.name
 
     audio_files = api.list_audio_files(wav_directory)
 
@@ -140,6 +135,7 @@ def main():
 
             conn.commit()
 
+    logging.info("Processing complete")
 
 if __name__ == "__main__":
     main()
