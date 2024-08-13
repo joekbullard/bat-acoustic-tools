@@ -89,7 +89,7 @@ for feat in features:
 
 logging.info("Deployment dictionary generated")
 
-with sqlite3.connect(r"C:\Users\Joe.Bullard\Downloads\sqlite3.db") as conn:
+with sqlite3.connect("./sqlite3.db") as conn:
     loc_query = "SELECT serial FROM records GROUP BY serial"
 
     cursor = conn.cursor()
