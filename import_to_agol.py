@@ -181,16 +181,6 @@ result = passes_table.append(
     source_info=analyze_param,
 )
 
-# if result["addResults"]:
-#     logging.info("Bulk insert successful!")
-#     for add_result in result["addResults"]:
-#         if add_result["success"]:
-#             logging.info(f"Added ObjectID: {add_result['objectId']}")
-#         else:
-#             logging.info(f"Failed to add row: {add_result['error']}")
-# else:
-#     logging.info("No rows were added.")
-
 logging.info("Complete, tidying up")
 
 logging.info("Deleting CSV from AGOL")
