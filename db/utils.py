@@ -1,6 +1,7 @@
 import logging
 import time
 import sqlite3
+from pathlib import Path
 from typing import Optional, Tuple
 
 
@@ -145,3 +146,16 @@ def execute_query(
         execute_query(connection, query, params)
     finally:
         cur.close()
+
+
+def is_valid_sqlite_file(sqlitedb_path: Path) -> bool:
+    if sqlitedb_path.exists():
+        try:
+            # Attempt to connect to the SQLite database
+            with sqlite3.connect(sqlitedb_path) as conn:
+                # Try a simple query to verify if it's a valid SQLite file
+                conn.execute("SELECT 1;")
+            return True
+        except sqlite3.DatabaseError:
+            return False
+    return False

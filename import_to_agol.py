@@ -176,7 +176,7 @@ def main():
         "class_name",
         "location_id",
     ]
-    result = passes_table.append(
+    passes_table.append(
         item_id=upload_item.id,
         upload_format="csv",
         rollback=True,
