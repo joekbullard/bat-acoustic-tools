@@ -2,7 +2,7 @@ import unittest
 import sqlite3
 import tempfile
 import os
-from wav_to_sqlite import (
+from process_wavs import (
     executemany_query,
     execute_query,
     INSERT_ANNOTATION,

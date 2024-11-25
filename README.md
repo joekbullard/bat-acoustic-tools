@@ -1,7 +1,7 @@
 # AWT Bat Data Processing
 
 ## Introduction
-AWT Bat Data Processing scans a directory and processes WAV files recorded from static bat detectors using the BatDetect2 library. The outputs (records and annotations) are saved into an SQLite database.
+Toolset to process, analyse and manage bat acoustic sounds files gathered used Wildlife Acoustics SM Mini static detectors. Uses the BatDetect2 library, the outputs (records and annotations) are saved into an SQLite database.
 
 ## Table of Contents
 - [Key Features](#key-features)
@@ -12,9 +12,11 @@ AWT Bat Data Processing scans a directory and processes WAV files recorded from 
 - [Examples](#examples)
 
 ## Key Features
-- **Feature 1**: Given path to WAV directory, iterates over WAV files and processes each file in turn.
-- **Feature 2**: Output is stored in SQLite3 database.
-- **Feature 3**: Database and schema will be created if it doesn't exist.
+The repo contains scripts to be used at the command line to process and manage acoustic bat data (WAV files). 
+
+`process_wavs` uses BatDetect2 to analyse wav files in a given directory. The analysis outputs are stored in an SQLite database using a 1:N related table schema - `records` for file level information and `annotations` for individual call level information, for more details refer to [BatDetect2](https://github.com/macaodha/batdetect2).
+
+`wav_to_flac` handles conversion of WAV files to FLAC to reduce storage footprint. Note that bat acoustic metadata (guano) will be lost through conversion. However, important (timestamp, location) metadata is retained within the SQLite database `records` table. Conversion to FLAC typically reduces file size by 30-70% when compared to WAV. Flac is lossless so if required, the file can be converted back to WAV for analysis or further processing. Conversion is handled by ffmpeg-python - note you will need to have ffmpeg installed on your machine in order to install the library.
 
 ## Installation Instructions
 1. Ensure you have Python version > 3.8 and <= 3.10 installed.
@@ -31,11 +33,11 @@ AWT Bat Data Processing scans a directory and processes WAV files recorded from 
 ## Usage Instructions
 To use the script, run the following command:
 ```bash
-python wav_to_sqlite.py "path/to/directory"
+python process_wavs.py "path/to/directory"
 ```
 ### Example Usage
 ```bash
-python wav_to_sqlite.py "D:\Goblin Combe - Bat Data\2024\Deployments\2024-05-28\GC17\Data"
+python process_wavs.py "D:\Goblin Combe - Bat Data\2024\Deployments\2024-05-28\GC17\Data"
 ```
 
 ## Dependencies
