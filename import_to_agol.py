@@ -51,7 +51,7 @@ def main():
         logging.info("Connection successful")
     except Exception as e:
         logging.error(e)
-        logging.info("Chgeck credentials, ending script")
+        logging.info("Check credentials, ending script")
         sys.exit()
     # work flow
 

@@ -3,3 +3,5 @@ test_data/
 *.db
 sqlite3.*
 __pycache__/
+deprecated/
+/.ruff_cache
