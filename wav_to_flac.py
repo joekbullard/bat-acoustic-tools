@@ -16,6 +16,7 @@ This script:
 - Original wav file is deleted at the end
 """
 
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
@@ -60,7 +61,7 @@ def create_flac_path(wav_file: Path, flac_root: Path) -> Path:
         flac_root (Path): Root directory for the FLAC file structure.
 
     Returns:
-        Path: Path to the FLAC file.
+        Path: Path to the FLAC file to be created.
     """
     wav_path_parts = wav_file.parts
     deployment_date = wav_path_parts[-4]
@@ -71,8 +72,6 @@ def create_flac_path(wav_file: Path, flac_root: Path) -> Path:
 
     return flac_dir / (wav_file.stem + ".flac")
 
-
-src_dir = Path(r"H:\Goblin Combe - Bat Data\2024")
 
 if __name__ == "__main__":
     setup_logging()
@@ -87,7 +86,6 @@ if __name__ == "__main__":
         cur.execute(sql_query)
 
         results = cur.fetchall()
-
         result_count = len(results)
 
         logging.info(f"{result_count} files to be backed up")
@@ -118,6 +116,10 @@ if __name__ == "__main__":
                         (str(backup_path), file_name),
                     )
                     logging.info(f"Backup of {file_name} complete - deleting WAV file")
+
+                    if count % 10 == 0:
+                        conn.commit()
+
                     wav_file_path.unlink()
 
                 except ffmpeg._run.Error:

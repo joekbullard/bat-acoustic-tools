@@ -13,6 +13,7 @@ def find_file(file_name: str, directory: Path)  -> Path | None:
     Returns:
         Path | None: The `Path` object of the first matching file found, or `None` if no match is found.
     """
+
     for file_path in directory.rglob(file_name):  # Search recursively
         return file_path  # Return the first match
     return None  # File not found
