@@ -82,25 +82,33 @@ if __name__ == "__main__":
     sql_query = args.sql
 
     with sqlite3.connect(db_path) as conn:
+        # create cursor and execute query to return names of files to be converted
         cur = conn.cursor()
         cur.execute(sql_query)
-
         results = cur.fetchall()
         result_count = len(results)
 
         logging.info(f"{result_count} files to be backed up")
 
+        # start loop over file list
         for count, result in enumerate(results, 1):
             file_name = result[0]
 
             logging.info(
                 f"Backing up file {count} of {result_count} ({round((count/result_count) * 100, 1)}%) - File name: {file_name}"
             )
+
+            # use find file to identify wav path
+            # TODO this is inefficient and would be better if the relative path was stored in DB to remove need to search
+            # therefore in future add wav path field to sqlite db
             wav_file_path = find_file(file_name, wav_directory)
 
+            # if wav is found then start backup process
             if wav_file_path is not None:
+                # return backup path for file
                 backup_path = create_flac_path(wav_file_path, flac_directory)
                 try:
+                    # execute backup using ffmpeg
                     ffmpeg.input(str(wav_file_path)).output(
                         str(backup_path),
                         audio_bitrate="6144k",
@@ -117,9 +125,11 @@ if __name__ == "__main__":
                     )
                     logging.info(f"Backup of {file_name} complete - deleting WAV file")
 
+                    # commit every 10th iteration
                     if count % 10 == 0:
                         conn.commit()
 
+                    # delete wav file after converson
                     wav_file_path.unlink()
 
                 except ffmpeg._run.Error:
