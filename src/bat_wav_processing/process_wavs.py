@@ -12,7 +12,7 @@ from db.utils import (
 )
 from guano import GuanoFile
 from pathlib import Path
-from utils import setup_logging
+from src.bat_wav_processing.utils import setup_logging
 
 """
 Process wav directory using BatDetect2
@@ -24,8 +24,8 @@ INSERT_ANNOTATION = """
                     INSERT INTO annotations(record_id, start_time, end_time, low_freq, high_freq, spp_class, class_prob, det_prob, individual, event)
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-INSERT_RECORD = """INSERT INTO records(file_name, location_id, serial, record_time, duration, class_name)
-                    VALUES(?, ?, ?, ?, ?, ?)"""
+INSERT_RECORD = """INSERT INTO records(file_name, location_id, serial, record_time, duration, class_name, backup, record_path)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?)"""
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -105,6 +105,8 @@ def main():
                 guano_file["Timestamp"],
                 record["duration"],
                 record["class_name"],
+                "no",
+                str(file_path),
             )
 
             last_row_id = execute_query(conn, INSERT_RECORD, record_values)

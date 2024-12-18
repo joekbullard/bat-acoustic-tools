@@ -1,5 +1,5 @@
 import unittest
-from wav_to_flac import create_flac_path
+from src.bat_wav_processing.wav_to_flac import create_flac_path
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 

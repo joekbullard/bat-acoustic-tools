@@ -43,8 +43,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-s",
         "--sql",
-        help="SQL query used to create list of file names, must return a single field of valid filenames",
-        default="select file_name from records where class_name = 'None' and backup = 'no' and location_id <> 'CM'",
+        help="SQL query used to create list of file names, must return file_name and record_path fields",
+        default="select file_name, record_path from records where class_name = 'None' and backup = 'no' and record_path not NULL",
         type=str,
     )
 
@@ -92,8 +92,8 @@ if __name__ == "__main__":
 
         # start loop over file list
         for count, result in enumerate(results, 1):
-            file_name = result[0]
-
+            file_name, file_path = result
+            
             logging.info(
                 f"Backing up file {count} of {result_count} ({round((count/result_count) * 100, 1)}%) - File name: {file_name}"
             )
@@ -101,8 +101,8 @@ if __name__ == "__main__":
             # use find file to identify wav path
             # TODO this is inefficient and would be better if the relative path was stored in DB to remove need to search
             # therefore in future add wav path field to sqlite db
-            wav_file_path = find_file(file_name, wav_directory)
-
+            # wav_file_path = find_file(file_name, wav_directory)
+            wav_file_path = Path(file_path)
             # if wav is found then start backup process
             if wav_file_path is not None:
                 # return backup path for file
