@@ -7,4 +7,4 @@ dynamic = ["version"]
 requires-python = ">= 3.10"
 
 [project.scripts]
-spam-cli = "spam:main_cli"
+process-wav = "bat_wav_processing.cli.py"

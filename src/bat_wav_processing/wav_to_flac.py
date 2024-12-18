@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 import logging
 import argparse
-from utils import find_file, setup_logging
+from src.bat_wav_processing.utils import find_file, setup_logging
 
 """
 This script:
