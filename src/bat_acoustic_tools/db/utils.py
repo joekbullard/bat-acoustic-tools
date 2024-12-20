@@ -22,7 +22,7 @@ def table_exists(dbpath: str = "./sqlite3.db") -> bool:
         return exists
 
 
-def create_schema(dbpath: str = "./sqlite3.db") -> None:
+def create_schema(dbpath: str) -> None:
     with sqlite3.connect(dbpath) as conn:
         cur = conn.cursor()
 
@@ -34,9 +34,15 @@ def create_schema(dbpath: str = "./sqlite3.db") -> None:
             location_id TEXT,
             serial TEXT,
             record_time TIMESTAMP,
-            record_night DATE,
             duration FLOAT,
-            class_name TEXT
+            class_name TEXT,
+            recording_night DATE,
+            validated TEXT,
+            id_correct TEXT,
+            comments TEXT,
+            backup TEXT,
+            backup_path TEXT,
+            record_path TEXT   
             )"""
         )
 

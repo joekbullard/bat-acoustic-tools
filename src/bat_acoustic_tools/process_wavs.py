@@ -1,9 +1,8 @@
 import sqlite3
-import argparse
 import logging
 import sys
 from batdetect2 import api
-from db.utils import (
+from bat_acoustic_tools.db.utils import (
     create_schema,
     table_exists,
     record_exists,
@@ -12,7 +11,7 @@ from db.utils import (
 )
 from guano import GuanoFile
 from pathlib import Path
-from src.bat_wav_processing.utils import setup_logging
+from bat_acoustic_tools.utils import setup_logging
 
 """
 Process wav directory using BatDetect2
@@ -28,37 +27,8 @@ INSERT_RECORD = """INSERT INTO records(file_name, location_id, serial, record_ti
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?)"""
 
 
-def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "directory", help="Path to directory containing WAV files", type=str
-    )
-
-    parser.add_argument(
-        "-d",
-        "--db_path",
-        help="Path to output sqlite3 database, defaults to sqlite3.db",
-        default="./sqlite3.db",
-        type=str,
-    )
-
-    parser.add_argument(
-        "-t",
-        "--threshold",
-        help="Detection threshold - a value from 0 to 1, defaults to 0.5",
-        default=0.5,
-        type=float,
-    )
-    return parser.parse_args()
-
-
-def main():
+def main(wav_directory: Path, db_path: Path, threshold: float):
     setup_logging()
-    args = parse_arguments()
-    wav_directory = Path(args.directory)
-    db_path = Path(args.db_path)
-    threshold = args.threshold
 
     conf = api.get_config(
         detection_threshold=threshold,
@@ -68,9 +38,7 @@ def main():
     )
 
     location_id = wav_directory.parent.name
-
     audio_files = api.list_audio_files(wav_directory)
-
     audio_array_length = len(audio_files)
 
     if audio_array_length == 0:
@@ -79,7 +47,7 @@ def main():
 
     if not table_exists(db_path):
         logging.info("No database schema identified, creating new schema")
-        create_schema()
+        create_schema(db_path)
     else:
         logging.info("Database schema exists")
 
