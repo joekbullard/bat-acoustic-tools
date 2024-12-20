@@ -23,11 +23,13 @@ Example `record` output:
 
 
 
-`wav_to_flac.py` handles conversion of WAV files to FLAC to reduce storage footprint. Note that bat acoustic metadata (guano) will be lost through conversion. However, important (timestamp, location) metadata is retained within the SQLite database `records` table. Conversion to FLAC typically reduces file size by 30-70% when compared to WAV. Flac is lossless so if required, the file can be converted back to WAV for analysis or further processing. Conversion is handled by ffmpeg-python - note you will need to have ffmpeg installed on your machine in order to install the library.
+`process_wavs.py` handles conversion of WAV files to FLAC to reduce storage footprint. Note that bat acoustic metadata (guano) will be lost through conversion. However, important (timestamp, location) metadata is retained within the SQLite database `records` table. 
+
+`backup_wavs.py` handles backup of WAV file to FLAC format using ffmpeg. The default setting takes all files that are noise and not currently backed up. The script generates a replica folder structure. Conversion to FLAC typically reduces file size by 30-70% when compared to WAV. Flac is lossless so if required, the file can be converted back to WAV for analysis or further processing. Conversion is handled by ffmpeg-python - note you will need to have ffmpeg installed on your machine in order to install the library.
 
 `utils.py` has a number of utilitiy functions that are used across the various other tools
 
-`import_to_agol.py` imports data from SQLite records table to a hosted feature layer on ArcGIS Online, you will need AWT AGOL credentials to use this.
+TODO `import_to_agol.py`
 
 ## Installation Instructions
 1. Ensure you have Python version > 3.8 and <= 3.10 installed.
@@ -44,7 +46,7 @@ Example `record` output:
 ## Usage Instructions
 To use the script, run the following command:
 ```bash
-python process_wavs.py "path/to/directory"
+python -m bat_acoustic_tools backup -h
 ```
 ### Example Usage
 ```bash
