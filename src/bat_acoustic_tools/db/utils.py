@@ -5,6 +5,44 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 
+RECORDS = """
+CREATE TABLE IF NOT EXISTS records (
+    id INTEGER PRIMARY KEY,
+    file_name TEXT UNIQUE,
+    location_id TEXT,
+    serial TEXT,
+    record_time TIMESTAMP,
+    duration FLOAT,
+    class_name TEXT,
+    recording_night DATE,
+    validated TEXT DEFAULT 'no',
+    id_correct TEXT,
+    comments TEXT,
+    backup TEXT,
+    backup_path TEXT,
+    record_path TEXT   
+);
+"""
+
+
+ANNOTATIONS = """
+CREATE TABLE IF NOT EXISTS annotations (
+    id INTEGER PRIMARY KEY,
+    record_id INTEGER,
+    start_time FLOAT,
+    end_time FLOAT,
+    low_freq INTEGER,
+    high_freq INTEGER,
+    spp_class TEXT,
+    class_prob FLOAT,
+    det_prob FLOAT,
+    individual INTEGER,
+    event TEXT,
+    FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
+);
+"""
+
+
 def table_exists(dbpath: str = "./sqlite3.db") -> bool:
     with sqlite3.connect(dbpath) as conn:
         cur = conn.cursor()
@@ -25,44 +63,8 @@ def table_exists(dbpath: str = "./sqlite3.db") -> bool:
 def create_schema(dbpath: str) -> None:
     with sqlite3.connect(dbpath) as conn:
         cur = conn.cursor()
-
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS records (
-            id INTEGER PRIMARY KEY,
-            file_name TEXT UNIQUE,
-            location_id TEXT,
-            serial TEXT,
-            record_time TIMESTAMP,
-            duration FLOAT,
-            class_name TEXT,
-            recording_night DATE,
-            validated TEXT,
-            id_correct TEXT,
-            comments TEXT,
-            backup TEXT,
-            backup_path TEXT,
-            record_path TEXT   
-            )"""
-        )
-
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS annotations (
-            id INTEGER PRIMARY KEY,
-            record_id INTEGER,
-            start_time FLOAT,
-            end_time FLOAT,
-            low_freq INTEGER,
-            high_freq INTEGER,
-            spp_class TEXT,
-            class_prob FLOAT,
-            det_prob FLOAT,
-            individual INTEGER,
-            event TEXT,
-            FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
-            )"""
-        )
+        cur.execute(RECORDS)
+        cur.execute(ANNOTATIONS)
 
         conn.commit()
 

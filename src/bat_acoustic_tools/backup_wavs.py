@@ -2,8 +2,7 @@ import ffmpeg
 import sqlite3
 from pathlib import Path
 import logging
-import argparse
-from bat_acoustic_tools.utils import find_file, setup_logging
+from bat_acoustic_tools.utils import setup_logging
 
 """
 This script:
@@ -15,40 +14,6 @@ This script:
 - When file is found, the file is converted to FLAC using ffmpeg and saved in specified directory
 - Original wav file is deleted at the end
 """
-
-
-def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "wav_directory",
-        help="Path to root directory containing WAV files, e.g. 'D:\Goblin Combe - Bat Data\2024\Deployments'",
-        type=str,
-    )
-
-    parser.add_argument(
-        "flac_directory",
-        help="Path to root directory to store FLAC files, e.g. 'H:\Goblin Combe - Bat Data\2024'",
-        type=str,
-    )
-
-    parser.add_argument(
-        "-d",
-        "--db_path",
-        help="Path to output sqlite3 database, defaults to sqlite3.db",
-        default="./sqlite3.db",
-        type=str,
-    )
-
-    parser.add_argument(
-        "-s",
-        "--sql",
-        help="SQL query used to create list of file names, must return file_name and record_path fields",
-        default="select file_name, record_path from records where class_name = 'None' and backup = 'no' and record_path not NULL",
-        type=str,
-    )
-
-    return parser.parse_args()
 
 
 def create_flac_path(wav_file: Path, flac_root: Path) -> Path:
@@ -72,14 +37,8 @@ def create_flac_path(wav_file: Path, flac_root: Path) -> Path:
 
     return flac_dir / (wav_file.stem + ".flac")
 
-
-if __name__ == "__main__":
+def main(wav_directory, flac_directory, db_path, sql_query):
     setup_logging()
-    args = parse_arguments()
-    wav_directory = Path(args.wav_directory)
-    flac_directory = Path(args.flac_directory)
-    db_path = Path(args.db_path)
-    sql_query = args.sql
 
     with sqlite3.connect(db_path) as conn:
         # create cursor and execute query to return names of files to be converted
@@ -138,3 +97,6 @@ if __name__ == "__main__":
                     )
             else:
                 logging.info(f"{file_name} not found in {str(wav_directory)}")
+
+if __name__ == "__main__":
+    main()

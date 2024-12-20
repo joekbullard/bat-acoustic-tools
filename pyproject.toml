@@ -1,10 +1,26 @@
+[project]
+name = "bat_wav_processing"
+version = "0.1"
+authors = [
+  { name="Joe Bullard", email="joe.bullard@avonwildlifetrust.org.uk" },
+]
+description = "Tools to process bat biacoustic data"
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">= 3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/joekbullard/bat-bioacoustics-processing"
+Issues = "https://github.com/joekbullard/bat-bioacoustics-processing/issues"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project]
-dynamic = ["version"]
-requires-python = ">= 3.10"
-
 [project.scripts]
-process-wav = "bat_wav_processing.cli.py"
+process-wav = "bat_acoustic_tools.cli.py"

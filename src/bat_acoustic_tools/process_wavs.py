@@ -23,8 +23,8 @@ INSERT_ANNOTATION = """
                     INSERT INTO annotations(record_id, start_time, end_time, low_freq, high_freq, spp_class, class_prob, det_prob, individual, event)
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-INSERT_RECORD = """INSERT INTO records(file_name, location_id, serial, record_time, duration, class_name, backup, record_path)
-                    VALUES(?, ?, ?, ?, ?, ?, ?, ?)"""
+INSERT_RECORD = """INSERT INTO records(file_name, location_id, serial, record_time, duration, class_name, recording_night, validated, id_correct, comments, backup, backup_path, record_path)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 
 def main(wav_directory: Path, db_path: Path, threshold: float):
