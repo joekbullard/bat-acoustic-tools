@@ -50,7 +50,7 @@ python -m bat_acoustic_tools backup -h
 ```
 ### Example Usage
 ```bash
-python process_wavs.py "D:\Goblin Combe - Bat Data\2024\Deployments\2024-05-28\GC17\Data"
+python -m bat_acoustic_tools analyse "D:\Goblin Combe - Bat Data\2024\Deployments\2024-05-28\GC17\Data"
 ```
 
 
